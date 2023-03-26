@@ -1,22 +1,18 @@
+import io.restassured.RestAssured;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.equalTo;
 
 public class AssuredTests {
-    public static String jsonplaceholderUrl = "https://jsonplaceholder.typicode.com/";
-    public static String jsonplaceholderPath = "";
-    public static String jsonplaceholderGet = "comments/";
-    public static String jsonplaceholderPut = "posts/1/";
-    public static String jsonplaceholderDelete = "posts/1/";
-    public static String jsonplaceholderPost = "posts/";
-
     //Starts before the creation of the class
     @BeforeClass
     public void setUp() {
-        baseURI = jsonplaceholderUrl;
-        basePath = jsonplaceholderPath;
+        baseURI = TestConfig.jsonplaceholderUrl;
+        basePath = TestConfig.jsonplaceholderPath;
+
+        //Sample for XML. An example for json can be executed in a similar way
+        requestSpecification = TestConfig.castomRequestSpecificationXML;
     }
 
     //GET without query params
@@ -25,7 +21,7 @@ public class AssuredTests {
         given()
                 .log().all() //log request
                 .when()
-                .get(jsonplaceholderGet) //end-point
+                .get(TestConfig.jsonplaceholderGet) //end-point
                 .then()
                 .log().all() //log responce
                 .statusCode(200); //check code responce
@@ -39,7 +35,7 @@ public class AssuredTests {
                 .queryParam("postId", 1, 2) //params
                 .log().all() //log request
                 .when()
-                    .get(jsonplaceholderGet) //end-point
+                    .get(TestConfig.jsonplaceholderGet) //end-point
                 .then()
                     .log().all() //log response
                     .statusCode(200); //check code response
@@ -69,7 +65,7 @@ public class AssuredTests {
                 .body(putBodyJson)
                     .log().uri() //log request
                 .when()
-                    .put(jsonplaceholderPut)
+                    .put(TestConfig.jsonplaceholderPut)
                 .then()
                     .log().body() //log response
                     .statusCode(200); //check code response
@@ -81,13 +77,13 @@ public class AssuredTests {
         given()
                 .log().uri() //log request
                 .when()
-                    .delete(jsonplaceholderDelete)
+                    .delete(TestConfig.jsonplaceholderDelete)
                 .then()
                     .log().body() //log response
                     .statusCode(200); //check code response
     }
 
-    //POST with json
+    //POST with json. Example of use without specification
     @Test
     public void postWithJson() {
         /*
@@ -108,12 +104,13 @@ public class AssuredTests {
                 .body(postBodyJson)
                 .log().uri() //log request
                 .when()
-                .post(jsonplaceholderPost)
+                .post(TestConfig.jsonplaceholderPost)
                 .then()
                 .log().body() //log response
-                .statusCode(201); //check code response
+                .statusCode(200); //check code response
     }
 
+    //Post with XML. Example of using the specification
     @Test
     public void postWithXml() {
         /*
@@ -147,11 +144,12 @@ public class AssuredTests {
                 "</Company>";
 
         given()
+                .spec(TestConfig.castomRequestSpecificationXML)
                 .body(postBodyXml)
-                .log().uri() //log request
+                .log().all() //log request
                 .when()
-                .post("https://enhn7stoyd7v.x.pipedream.net")
                 .then()
+                .spec(TestConfig.castomResponseSpecificationXMLForPost)
                 .log().body() //log response
                 .statusCode(200); //real code - 201. The service used emulates the request, so the response code is 200
     }
